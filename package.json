@@ -1,14 +1,14 @@
 {
-  "name": "apollo-link-token-refresh",
+  "name": "apollo-link-token-refresh-before-refetch",
   "version": "0.1.1",
-  "description": "Apollo Link that performs access tokens renew",
+  "description": "Apollo Link that performs access tokens renew (Forked from newsiberian/apollo-link-token-refresh)",
   "main": "./lib/bundle.umd.js",
   "module": "./lib/tokenRefreshLink.js",
   "jsnext:main": "./lib/tokenRefreshLink.js",
   "typings": "./lib/tokenRefreshLink.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/newsiberian/apollo-link-token-refresh.git"
+    "url": "git+https://github.com/sharif9876/apollo-link-token-refresh.git"
   },
   "bugs": {
     "url": "https://github.com/newsiberian/apollo-link-token-refresh/issues"

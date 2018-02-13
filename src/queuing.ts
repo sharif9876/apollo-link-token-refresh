@@ -1,4 +1,5 @@
 import { Observable, Operation, NextLink, FetchResult } from 'apollo-link';
+import { BeforeRefetch } from './tokenRefreshLink'
 
 export interface SubscriberInterface {
   next?: (result: FetchResult) => void;
@@ -50,11 +51,15 @@ export class OperationQueuing {
     return requestCopy.observable;
   }
 
-  public consumeQueue(): void {
+  public consumeQueue(
+    accessToken: string,
+    beforeRefetch: BeforeRefetch)
+  : void {
     this.queuedRequests.forEach(request => {
-      const key = request.operation.toKey();
+      const operation = beforeRefetch(accessToken, request.operation);
+      const key = operation.toKey();
       this.subscriptions[key] =
-        request.forward(request.operation).subscribe(request.subscriber);
+        request.forward(operation).subscribe(request.subscriber);
 
       return () => {
         this.subscriptions[key].unsubscribe();

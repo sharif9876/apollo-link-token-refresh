@@ -12,6 +12,7 @@ export { OperationQueuing, QueuedRequest } from './queuing';
 
 export type FetchAccessToken = (...args: any[]) => Promise<Response>;
 export type HandleFetch = (accessToken: string) => void;
+export type BeforeRefetch = (accessToken: string, operation: Operation) => Operation;
 export type HandleError = (err: Error) => void;
 export type IsTokenValidOrUndefined = (...args: any[]) => boolean;
 
@@ -88,6 +89,7 @@ export class TokenRefreshLink extends ApolloLink {
   private isTokenValidOrUndefined: IsTokenValidOrUndefined;
   private fetchAccessToken: FetchAccessToken;
   private handleFetch: HandleFetch;
+  private beforeRefetch: BeforeRefetch;
   private handleError: HandleError;
   private queue: OperationQueuing;
 
@@ -96,6 +98,7 @@ export class TokenRefreshLink extends ApolloLink {
     isTokenValidOrUndefined: IsTokenValidOrUndefined;
     fetchAccessToken: FetchAccessToken;
     handleFetch: HandleFetch;
+    beforeRefetch?: BeforeRefetch;
     handleError?: HandleError;
   }) {
     super();
@@ -105,6 +108,7 @@ export class TokenRefreshLink extends ApolloLink {
     this.isTokenValidOrUndefined = params.isTokenValidOrUndefined;
     this.fetchAccessToken = params.fetchAccessToken;
     this.handleFetch = params.handleFetch;
+    this.beforeRefetch = params.beforeRefetch;
     this.handleError = typeof params.handleError === 'function'
       ? params.handleError
       : err => {
@@ -127,6 +131,7 @@ export class TokenRefreshLink extends ApolloLink {
       return forward(operation);
     }
 
+    let newToken = '';
     if (!this.fetching) {
       this.fetching = true;
       this.fetchAccessToken()
@@ -135,12 +140,13 @@ export class TokenRefreshLink extends ApolloLink {
           if (!body[this.accessTokenField]) {
             throw new Error('[Token Refresh Link]: Unable to retrieve new access token');
           }
+          newToken = body[this.accessTokenField];
           return body[this.accessTokenField];
         })
         .then(this.handleFetch)
         .then(() => {
           this.fetching = false;
-          this.queue.consumeQueue();
+          this.queue.consumeQueue(newToken, this.beforeRefetch);
         })
         .catch(this.handleError);
     }

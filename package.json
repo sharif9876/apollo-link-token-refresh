@@ -1,6 +1,6 @@
 {
   "name": "apollo-link-token-refresh-before-refetch",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Apollo Link that performs access tokens renew (Forked from newsiberian/apollo-link-token-refresh)",
   "main": "./lib/bundle.umd.js",
   "module": "./lib/tokenRefreshLink.js",
